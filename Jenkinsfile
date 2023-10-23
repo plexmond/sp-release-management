@@ -11,19 +11,20 @@ pipeline {
 
         stage('Dev Approval') {
             when {
-                branch 'dev' // Voer deze stap alleen uit op de 'dev'branch
+                branch 'dev' // only when dev branch
             }
             steps {
-                input 'Keur de wijzigingen goed om naar main te pushen?' // handmatige goedkeuring
+                input 'Approve the changes to push to main?' // approve manually
             }
         }
 
         stage('Push to Main') {
             when {
-                branch 'dev' // voer stap alleen uit op de dev branch
+                branch 'dev' // only when on dev branch
             }
             steps {
-                sh 'git push origin dev:main' // push van dev naar main
+                sh 'git checkout -b dev' //  change branch to dev
+                sh 'git push origin dev:main' // push dev to main
             }
         }
     }
