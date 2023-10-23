@@ -2,28 +2,28 @@ pipeline {
     agent any
 
     stages {
-        stage('Build') {
+        stage('Build and Test') {
             steps {
-                echo "Building.."
-                sh '''
-                echo "doing build stuff.."
-                '''
+                // build phase
+                echo "build"
             }
         }
-        stage('Test') {
+
+        stage('Dev Approval') {
+            when {
+                branch 'dev' // Voer deze stap alleen uit op de 'dev'branch
+            }
             steps {
-                echo "Testing.."
-                sh '''
-                echo "doing test stuff.."
-                '''
+                input 'Keur de wijzigingen goed om naar main te pushen?' // handmatige goedkeuring
             }
         }
-        stage('Deliver') {
+
+        stage('Push to Main') {
+            when {
+                branch 'dev' // voer stap alleen uit op de dev branch
+            }
             steps {
-                echo 'Deliver....'
-                sh '''
-                echo "doing delivery stuff.."
-                '''
+                sh 'git push origin dev:main' // push van dev naar main
             }
         }
     }
