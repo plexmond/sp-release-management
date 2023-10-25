@@ -7,7 +7,7 @@ pipeline {
         stage('Delete existing files') {
             steps {
                 script {
-                    def serverHost = '10.0.10.21'
+                    def serverHost = '10.0.10.22'
                     def serverUser = 'student'
 
                     // delete existing
@@ -22,7 +22,7 @@ pipeline {
             steps {
                 script {
                     // server
-                    def serverHost = '10.0.10.21'
+                    def serverHost = '10.0.10.22'
                     def serverUser = 'student'
                     def remotePath = '/var/www/html/'
 
