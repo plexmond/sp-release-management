@@ -23,7 +23,7 @@ pipeline {
                 branch 'dev' // only when on dev branch
             }
             steps {
-                sh 'git checkout -b dev' //  change branch to dev
+                sh 'git checkout dev' //  change branch to dev
                 sh 'git push origin dev:main' // push dev to main
             }
         }
