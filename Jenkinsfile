@@ -1,30 +1,36 @@
 pipeline {
     agent any
-
+    triggers {
+        pollSCM('H/5 * * * *')
+    }
     stages {
-        stage('Build and Test') {
+        stage('Delete existing files') {
             steps {
-                // build phase
-                echo "build"
+                script {
+                    def serverHost = '10.0.10.21'
+                    def serverUser = 'student'
+
+                    // delete existing
+                    sshagent(['ssh-id']) {
+                        sh "ssh -v ${serverUser}@${serverHost} sudo rm -rf /var/www/html/*"
+                    }
+                }
             }
         }
 
-        stage('Dev Approval') {
-            when {
-                branch 'dev' // only when dev branch
-            }
+        stage('Deploy files to webserver') {
             steps {
-                input 'Approve the changes to push to main?' // approve manually
-            }
-        }
+                script {
+                    // server
+                    def serverHost = '10.0.10.21'
+                    def serverUser = 'student'
+                    def remotePath = '/var/www/html/'
 
-        stage('Push to Main') {
-            when {
-                branch 'dev' // only when on dev branch
-            }
-            steps {
-                sh 'git checkout dev' //  change branch to dev
-                sh 'git push origin dev:main' // push dev to main
+                    // copy repo
+                    sshagent(['ssh-id']) {
+                        sh "scp -r ./* ${serverUser}@${serverHost}:${remotePath}"
+                    }
+                }
             }
         }
     }
