@@ -1,32 +1,36 @@
 pipeline {
     agent any
-
+    triggers {
+        pollSCM('H/5 * * * *')
+    }
     stages {
-        stage('Build and Test') {
+        stage('Delete existing files') {
             steps {
-                // build steps
-                echo "Testing.."
-                sh '''
-                echo "Testing.."
-                '''
+                script {
+                    def serverHost = '10.0.10.22'
+                    def serverUser = 'student'
+
+                    // delete existing
+                    sshagent(['ssh-id']) {
+                        sh "ssh -v ${serverUser}@${serverHost} sudo rm -rf /var/www/html/*"
+                    }
+                }
             }
         }
 
-        stage('Dev Approval') {
-            when {
-                branch 'dev' // Voer deze stap alleen uit op de dev branch
-            }
+        stage('Deploy files to webserver') {
             steps {
-                input 'Keur de wijzigingen goed om naar main te pushen?' // handmatige goedkeuring
-            }
-        }
+                script {
+                    // server
+                    def serverHost = '10.0.10.22'
+                    def serverUser = 'student'
+                    def remotePath = '/var/www/html/'
 
-        stage('Push to Main') {
-            when {
-                branch 'dev' // voer stap alleen uit op de dev branch
-            }
-            steps {
-                sh 'git push origin dev:main' // push van dev naar main
+                    // copy repo
+                    sshagent(['ssh-id']) {
+                        sh "scp -r ./* ${serverUser}@${serverHost}:${remotePath}"
+                    }
+                }
             }
         }
     }
